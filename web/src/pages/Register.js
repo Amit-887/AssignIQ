@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Container, Typography, Box, TextField, Button, Card, CardContent, Divider, Alert, Tabs, Tab, InputAdornment, IconButton, FormControl, InputLabel, Select, MenuItem, Input, useMediaQuery, useTheme, Avatar, Stack } from '@mui/material';
+import { Typography, Box, TextField, Button, Card, CardContent, Divider, Alert, Tabs, Tab, InputAdornment, IconButton, FormControl, InputLabel, Select, MenuItem, useMediaQuery, useTheme, Avatar, Stack } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
@@ -10,9 +10,6 @@ import SchoolIcon from '@mui/icons-material/School';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import CodeIcon from '@mui/icons-material/Code';
-import ChatIcon from '@mui/icons-material/Chat';
 import OTPVerification from '../components/OTPVerification';
 import Layout from '../components/Layout';
 import { register, googleLogin, clearError } from '../redux/slices/authSlice';

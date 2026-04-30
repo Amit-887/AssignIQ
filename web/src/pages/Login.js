@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Container, Typography, Box, TextField, Button, Card, CardContent, Alert, Tabs, Tab, InputAdornment, IconButton, Divider, useMediaQuery, useTheme, Avatar, Stack } from '@mui/material';
+import { Typography, Box, TextField, Button, Card, CardContent, Alert, Tabs, Tab, InputAdornment, IconButton, Divider, useMediaQuery, useTheme, Avatar, Stack } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
