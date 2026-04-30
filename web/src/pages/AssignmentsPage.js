@@ -36,13 +36,17 @@ import {
   AlertTitle
 } from '@mui/material';
 import {
+  CheckCircle,
   Info,
   Close,
+  Quiz,
+  Timer as TimerIcon,
   ExpandMore as ExpandMoreIcon,
   CloudUpload,
   Description,
   Image,
   Visibility,
+  Download,
   CameraAlt,
   Delete
 } from '@mui/icons-material';
