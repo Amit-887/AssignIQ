@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -88,9 +88,9 @@ const AssignmentsPage = () => {
   useEffect(() => {
     fetchAssignments();
     fetchStudentPerformance();
-  }, [sectionId]);
+  }, [sectionId, fetchAssignments, fetchStudentPerformance]);
 
-  const fetchAssignments = async () => {
+  const fetchAssignments = useCallback(async () => {
     try {
       setLoading(true);
       const url = sectionId ? `/assignments/section/${sectionId}` : '/assignments/student/all';
@@ -101,16 +101,16 @@ const AssignmentsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [sectionId]);
 
-  const fetchStudentPerformance = async () => {
+  const fetchStudentPerformance = useCallback(async () => {
     try {
       const response = await api.get('/assignments/student/performance');
       setPerformance(response.data.data);
     } catch (error) {
       console.error('Failed to load performance data');
     }
-  };
+  }, []);
 
   const handleFileSelect = (event) => {
     const selectedFiles = Array.from(event.target.files);
