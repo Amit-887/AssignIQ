@@ -36,19 +36,13 @@ import {
   AlertTitle
 } from '@mui/material';
 import {
-  CheckCircle,
-  Warning,
   Info,
   Close,
-  Quiz,
-  Timer as TimerIcon,
   ExpandMore as ExpandMoreIcon,
   CloudUpload,
   Description,
   Image,
-  AddPhotoAlternate,
   Visibility,
-  Download,
   CameraAlt,
   Delete
 } from '@mui/icons-material';
@@ -85,11 +79,6 @@ const AssignmentsPage = () => {
   const [selectedHistoryItem, setSelectedHistoryItem] = useState(null);
   const webcamRef = React.useRef(null);
 
-  useEffect(() => {
-    fetchAssignments();
-    fetchStudentPerformance();
-  }, [sectionId, fetchAssignments, fetchStudentPerformance]);
-
   const fetchAssignments = useCallback(async () => {
     try {
       setLoading(true);
@@ -111,6 +100,11 @@ const AssignmentsPage = () => {
       console.error('Failed to load performance data');
     }
   }, []);
+
+  useEffect(() => {
+    fetchAssignments();
+    fetchStudentPerformance();
+  }, [sectionId, fetchAssignments, fetchStudentPerformance]);
 
   const handleFileSelect = (event) => {
     const selectedFiles = Array.from(event.target.files);
