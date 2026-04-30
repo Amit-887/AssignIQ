@@ -16,6 +16,7 @@ import ChatIcon from '@mui/icons-material/Chat';
 import OTPVerification from '../components/OTPVerification';
 import Layout from '../components/Layout';
 import { register, googleLogin, clearError } from '../redux/slices/authSlice';
+import api from '../redux/api';
 
 const Register = () => {
   const dispatch = useDispatch();
@@ -114,21 +115,20 @@ const Register = () => {
       }
 
       try {
-        const response = await fetch('/api/auth/send-otp', {
-          method: 'POST',
-          body: userData
+        const response = await api.post('/auth/send-otp', userData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
         });
         
-        const result = await response.json();
-        
-        if (result.success) {
+        if (response.data.success) {
           setPendingEmail(formData.email);
           setShowOTP(true);
         } else {
-          setValidationError(result.message || 'Failed to send OTP');
+          setValidationError(response.data.message || 'Failed to send OTP');
         }
       } catch (error) {
-        setValidationError('Failed to send verification email');
+        setValidationError(error.response?.data?.message || 'Failed to send verification email');
       }
     } else {
       // For students, use regular registration
@@ -150,26 +150,18 @@ const Register = () => {
 
   const handleOTPVerify = async (email, otp) => {
     try {
-      const response = await fetch('/api/auth/verify-otp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, otp })
-      });
+      const response = await api.post('/auth/verify-otp', { email, otp });
       
-      const result = await response.json();
-      
-      if (result.success) {
+      if (response.data.success) {
         // Store token and user info
-        localStorage.setItem('token', result.token);
-        localStorage.setItem('user', JSON.stringify(result.user));
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
         navigate('/dashboard');
       } else {
-        setValidationError(result.message || 'OTP verification failed');
+        setValidationError(response.data.message || 'OTP verification failed');
       }
     } catch (error) {
-      setValidationError('Failed to verify OTP');
+      setValidationError(error.response?.data?.message || 'Failed to verify OTP');
     }
   };
 
