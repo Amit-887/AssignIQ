@@ -190,6 +190,13 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`CORS Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+  
+  // Debug check for Render environment variables
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.error('--- WARNING: EMAIL_USER or EMAIL_PASS is MISSING in environment variables! ---');
+  } else {
+    console.log('--- Email credentials detected successfully ---');
+  }
 });
 
 // Run cleanup job every hour to delete attachments older than 24 hours
