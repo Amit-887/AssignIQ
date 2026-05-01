@@ -58,6 +58,11 @@ const Messages = () => {
   const messagesEndRef = useRef();
   const fileInputRef = useRef();
   const profileInputRef = useRef();
+  const selectedConversationRef = useRef(selectedConversation);
+
+  useEffect(() => {
+    selectedConversationRef.current = selectedConversation;
+  }, [selectedConversation]);
 
   useEffect(() => {
     fetchConversations();
@@ -126,10 +131,12 @@ const Messages = () => {
     socketRef.current.on('newMessage', (message) => {
       console.log('--- NEW_MESSAGE_RECEIVED_VIA_SOCKET ---', message);
       
-      if (selectedConversation) {
+      const currentSelected = selectedConversationRef.current;
+      
+      if (currentSelected) {
         const messageSenderId = typeof message.sender === 'object' ? message.sender._id : message.sender;
         const messageReceiverId = typeof message.receiver === 'object' ? message.receiver._id : message.receiver;
-        const selectedId = selectedConversation._id;
+        const selectedId = currentSelected._id;
 
         const isGroupMatch = message.chatGroup && message.chatGroup === selectedId;
         const isP2PMatch = messageSenderId === selectedId || messageReceiverId === selectedId;
@@ -143,6 +150,8 @@ const Messages = () => {
             return [...prev, message];
           });
         }
+      } else {
+        console.log('--- NO_CONVERSATION_SELECTED_CURRENTLY ---');
       }
       fetchConversations();
     });
@@ -568,7 +577,7 @@ const Messages = () => {
                                 <Box sx={{ flex: 1 }}>
                                   {msg.attachments?.map((att, i) => (
                                     <Box key={i} sx={{ mb: 1, borderRadius: 2, overflow: 'hidden', bgcolor: isMe ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', p: 0.5 }}>
-                                      {att.type?.startsWith('image/') ? (
+                                      {att.fileType?.startsWith('image/') ? (
                                         <img 
                                           src={resolveFileUrl(att.url)} 
                                           alt="attachment" 
@@ -620,7 +629,7 @@ const Messages = () => {
                           {attachments.map((att, i) => (
                             <Chip
                               key={i}
-                              icon={att.type?.startsWith('image/') ? <ImageIcon /> : <InsertDriveFileIcon />}
+                              icon={att.fileType?.startsWith('image/') ? <ImageIcon /> : <InsertDriveFileIcon />}
                               label={att.name}
                               onDelete={() => setAttachments([])}
                               color="primary"

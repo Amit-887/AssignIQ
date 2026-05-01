@@ -28,10 +28,10 @@ const messageSchema = new mongoose.Schema({
     default: 'text'
   },
   attachments: [{
-    url: String,
-    type: String,
-    name: String,
-    size: Number
+    url: { type: String },
+    fileType: { type: String }, // Renamed from 'type' to avoid Mongoose conflicts
+    name: { type: String },
+    size: { type: Number }
   }],
   isRead: {
     type: Boolean,

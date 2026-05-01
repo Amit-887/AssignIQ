@@ -360,7 +360,7 @@ exports.uploadChatFile = async (req, res) => {
       data: {
         url: fileUrl,
         name: req.file.originalname,
-        type: req.file.mimetype,
+        fileType: req.file.mimetype,
         size: req.file.size
       }
     });
