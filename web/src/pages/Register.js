@@ -43,6 +43,7 @@ const Register = () => {
   const [showOTP, setShowOTP] = useState(false);
   const [pendingEmail, setPendingEmail] = useState('');
   const [googleScriptLoaded, setGoogleScriptLoaded] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const roleRef = React.useRef(formData.role);
   const isInitializingRef = React.useRef(false);
 
@@ -162,6 +163,7 @@ const Register = () => {
       }
 
       try {
+        setIsSubmitting(true);
         const response = await api.post('/auth/send-otp', userData, {
           headers: {
             'Content-Type': 'multipart/form-data'
@@ -177,6 +179,8 @@ const Register = () => {
       } catch (error) {
         console.error('--- FRONTEND_REGISTER_ERROR ---', error);
         setValidationError(error.response?.data?.message || 'Failed to send verification email');
+      } finally {
+        setIsSubmitting(false);
       }
     } else {
       // For students, use regular registration
@@ -491,13 +495,13 @@ const Register = () => {
                       fullWidth
                       variant="contained"
                       size="large"
-                      disabled={loading}
+                      disabled={loading || isSubmitting}
                       sx={{ 
                         height: 56, borderRadius: 3, fontWeight: 700, mt: 2,
                         boxShadow: '0 10px 25px -5px rgba(37,99,235,0.4)'
                       }}
                     >
-                      {loading ? 'Creating...' : formData.role === 'teacher' ? 'Verify & Continue' : 'Create Account'}
+                      {loading || isSubmitting ? 'Processing...' : formData.role === 'teacher' ? 'Verify & Continue' : 'Create Account'}
                     </Button>
                   </Stack>
                 </form>
