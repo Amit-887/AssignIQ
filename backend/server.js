@@ -52,12 +52,20 @@ app.use((req, res, next) => {
 
 // Middleware
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'development' ? true : [
-    process.env.FRONTEND_URL || 'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'https://accounts.google.com',
-    'https://content.googleapis.com'
-  ],
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      process.env.FRONTEND_URL,
+      'http://localhost:3000',
+      'http://127.0.0.1:3000'
+    ].filter(Boolean);
+    
+    // Allow any vercel.app subdomain for development ease, or if origin matches allowedOrigins
+    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -86,12 +94,13 @@ app.get('/api/health', (req, res) => {
 });
 
 // Serve static files in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../web/build')));
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../web/build', 'index.html'));
-  });
-}
+// Static files served by separate frontend (Vercel)
+// if (process.env.NODE_ENV === 'production') {
+//   app.use(express.static(path.join(__dirname, '../web/build')));
+//   app.get('*', (req, res) => {
+//     res.sendFile(path.resolve(__dirname, '../web/build', 'index.html'));
+//   });
+// }
 
 // Socket.io real-time messaging
 const onlineUsers = new Map();
@@ -175,11 +184,12 @@ app.use((req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5002;
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`CORS Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
 });
 
 // Run cleanup job every hour to delete attachments older than 24 hours

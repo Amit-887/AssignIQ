@@ -10,13 +10,10 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 // @route   POST /api/auth/send-otp
 // @access  Public
 exports.sendOTP = async (req, res) => {
+  console.log('--- REGISTER_DEBUG: sendOTP called ---');
   try {
     const { name, email, password, role, department, phone, documentType } = req.body;
-    
-    console.log('=== SendOTP Request ===');
-    console.log('Body:', JSON.stringify(req.body));
-    console.log('File:', req.file);
-    console.log('Email from request:', email);
+    console.log(`--- REGISTER_DEBUG: Email: ${email}, Role: ${role} ---`);
 
     // Check if user exists
     const existingUser = await User.findOne({ email });
@@ -79,6 +76,8 @@ exports.sendOTP = async (req, res) => {
       message: 'OTP sent to your email. Please verify to complete registration.'
     });
   } catch (error) {
+    console.error('--- REGISTER_DEBUG: sendOTP Error ---');
+    console.error(error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -131,6 +130,8 @@ exports.verifyOTPAndRegister = async (req, res) => {
 
     sendTokenResponse(user, 201, res);
   } catch (error) {
+    console.error('--- REGISTER_DEBUG: verifyOTPAndRegister Error ---');
+    console.error(error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -188,6 +189,8 @@ exports.register = async (req, res) => {
 
     sendTokenResponse(user, 201, res);
   } catch (error) {
+    console.error('--- REGISTER_DEBUG: register Error ---');
+    console.error(error);
     res.status(500).json({
       success: false,
       message: error.message

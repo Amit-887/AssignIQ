@@ -128,6 +128,7 @@ const Register = () => {
           setValidationError(response.data.message || 'Failed to send OTP');
         }
       } catch (error) {
+        console.error('--- FRONTEND_REGISTER_ERROR ---', error);
         setValidationError(error.response?.data?.message || 'Failed to send verification email');
       }
     } else {
