@@ -17,6 +17,7 @@ import OTPVerification from '../components/OTPVerification';
 import Layout from '../components/Layout';
 import { register, googleLogin, clearError } from '../redux/slices/authSlice';
 import api from '../redux/api';
+import { loadGoogleScript, initializeGoogleAuth } from '../utils/googleAuth';
 
 const Register = () => {
   const dispatch = useDispatch();
@@ -41,6 +42,52 @@ const Register = () => {
   const [validationError, setValidationError] = useState('');
   const [showOTP, setShowOTP] = useState(false);
   const [pendingEmail, setPendingEmail] = useState('');
+  const [googleScriptLoaded, setGoogleScriptLoaded] = useState(false);
+  const roleRef = React.useRef(formData.role);
+  const isInitializingRef = React.useRef(false);
+
+  // Keep role ref updated
+  useEffect(() => {
+    roleRef.current = formData.role;
+  }, [formData.role]);
+
+  // Load Google OAuth script
+  useEffect(() => {
+    const initGoogleAuth = async () => {
+      if (isInitializingRef.current || googleScriptLoaded) return;
+      isInitializingRef.current = true;
+      try {
+        await loadGoogleScript();
+        setGoogleScriptLoaded(true);
+        
+        const handleGoogleResponse = async (response) => {
+          try {
+            if (!response.credential) return;
+            
+            const result = await dispatch(googleLogin({
+              idToken: response.credential,
+              role: roleRef.current,
+              department: roleRef.current === 'teacher' ? 'Computer Science' : undefined
+            }));
+            
+            if (googleLogin.fulfilled.match(result)) {
+              navigate('/dashboard');
+            } else {
+              setValidationError(result.payload || 'Google registration failed');
+            }
+          } catch (error) {
+            console.error('Google Auth Error:', error);
+          }
+        };
+
+        initializeGoogleAuth(handleGoogleResponse);
+      } catch (error) {
+        console.error('Failed to load Google script:', error);
+      }
+    };
+
+    initGoogleAuth();
+  }, [dispatch, navigate]);
 
   const roles = [
     { value: 'student', label: 'Student', icon: <SchoolIcon /> },
@@ -172,7 +219,42 @@ const Register = () => {
   };
 
   const handleGoogleRegister = async () => {
-    alert('Google OAuth would be implemented here with proper credentials');
+    if (!googleScriptLoaded) {
+      alert('Google OAuth is still loading...');
+      return;
+    }
+    
+    try {
+      if (!window.google?.accounts?.id) return;
+
+      const existingButton = document.getElementById('google-reg-button');
+      if (existingButton) existingButton.remove();
+      
+      const formElement = document.querySelector('form');
+      const googleContainer = document.createElement('div');
+      googleContainer.id = 'google-reg-button';
+      googleContainer.style.cssText = 'margin: 20px 0; text-align: center;';
+      
+      const googleButtonDiv = document.createElement('div');
+      googleContainer.appendChild(googleButtonDiv);
+      formElement.parentNode.insertBefore(googleContainer, formElement.nextSibling);
+      
+      window.google.accounts.id.renderButton(googleButtonDiv, {
+        type: 'standard',
+        theme: 'outline',
+        size: 'large',
+        text: 'signup_with',
+        width: 300
+      });
+
+      // Auto-cleanup
+      setTimeout(() => {
+        if (googleContainer.parentNode) googleContainer.parentNode.removeChild(googleContainer);
+      }, 30000);
+      
+    } catch (error) {
+      console.error('Google register error:', error);
+    }
   };
 
   return (
