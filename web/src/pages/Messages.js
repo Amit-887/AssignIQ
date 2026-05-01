@@ -138,8 +138,8 @@ const Messages = () => {
         const messageReceiverId = typeof message.receiver === 'object' ? message.receiver._id : message.receiver;
         const selectedId = currentSelected._id;
 
-        const isGroupMatch = message.chatGroup && message.chatGroup === selectedId;
-        const isP2PMatch = messageSenderId === selectedId || messageReceiverId === selectedId;
+        const isGroupMatch = message.chatGroup && String(message.chatGroup) === String(selectedId);
+        const isP2PMatch = String(messageSenderId) === String(selectedId) || String(messageReceiverId) === String(selectedId);
         
         console.log('--- SOCKET_MATCH_CHECK ---', { isGroupMatch, isP2PMatch, messageSenderId, messageReceiverId, selectedId });
 
