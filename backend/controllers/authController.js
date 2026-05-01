@@ -3,7 +3,7 @@ const Section = require('../models/Section');
 const Assignment = require('../models/Assignment');
 const Submission = require('../models/Submission');
 const { OAuth2Client } = require('google-auth-library');
-const { sendOTPEmail, generateOTP, storeOTP, verifyOTP, sendRegistrationConfirmationEmail } = require('../utils/email');
+const { sendOTPEmail, generateOTP, storeOTP, verifyOTP, sendRegistrationConfirmationEmail, sendAdminNotificationEmail } = require('../utils/email');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // @desc    Send OTP for teacher registration
@@ -123,9 +123,10 @@ exports.verifyOTPAndRegister = async (req, res) => {
     // Clean up temporary data
     req.app.delete('tempUserData_' + email);
 
-    // Send registration confirmation email for teachers
+    // Send registration confirmation email for teachers and notify admin
     if (user.role === 'teacher') {
       await sendRegistrationConfirmationEmail(user.email, user.name);
+      await sendAdminNotificationEmail(user);
     }
 
     sendTokenResponse(user, 201, res);

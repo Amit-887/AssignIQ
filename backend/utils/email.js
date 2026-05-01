@@ -11,7 +11,9 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
-  }
+  },
+  connectionTimeout: 10000, // 10 seconds
+  timeout: 10000 // 10 seconds
 });
 
 // Generate OTP
@@ -241,6 +243,38 @@ const sendRejectionEmail = async (teacherEmail, teacherName, reason) => {
   }
 };
 
+// Send notification to Admin about new teacher registration
+const sendAdminNotificationEmail = async (teacherData) => {
+  try {
+    const adminEmail = 'admin@assigniq.com'; // Default admin email
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: adminEmail,
+      subject: '🚨 New Teacher Registration Pending Approval',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px;">
+          <h2>New Teacher Registration</h2>
+          <p>A new teacher has registered and is waiting for your approval.</p>
+          <ul>
+            <li><strong>Name:</strong> ${teacherData.name}</li>
+            <li><strong>Email:</strong> ${teacherData.email}</li>
+            <li><strong>Department:</strong> ${teacherData.department}</li>
+            <li><strong>Phone:</strong> ${teacherData.phone}</li>
+          </ul>
+          <p>Please log in to the Admin Dashboard to review their documents and approve the account.</p>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`Admin notification sent for ${teacherData.email}`);
+    return true;
+  } catch (error) {
+    console.error('Failed to send admin notification:', error.message);
+    return false;
+  }
+};
+
 module.exports = {
   sendApprovalEmail,
   sendRejectionEmail,
@@ -248,6 +282,17 @@ module.exports = {
   generateOTP,
   storeOTP,
   verifyOTP,
-  sendRegistrationConfirmationEmail
+  sendRegistrationConfirmationEmail,
+  sendAdminNotificationEmail
 };
+
+// Verify transporter connection on startup
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('--- EMAIL_TRANSPORT_ERROR ---');
+    console.error(error);
+  } else {
+    console.log('--- EMAIL_TRANSPORT_READY ---');
+  }
+});
 
