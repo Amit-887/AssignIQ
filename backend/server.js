@@ -25,17 +25,11 @@ const server = http.createServer(app);
 // Socket.io setup
 const io = socketIo(server, {
   cors: {
-    origin: [
-      process.env.FRONTEND_URL || 'http://localhost:3000',
-      'http://127.0.0.1:3000',
-      'http://127.0.0.1:63836',
-      'http://127.0.0.1:56021',
-      'http://127.0.0.1:62840',
-      'https://accounts.google.com',
-      'https://content.googleapis.com'
-    ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
-  }
+    origin: "*", // Allow all for debugging
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    credentials: true
+  },
+  transports: ['websocket', 'polling']
 });
 
 // Make io accessible to routes
@@ -134,8 +128,13 @@ io.on('connection', (socket) => {
 
   // Handle new message
   socket.on('sendMessage', (message) => {
-    io.to(`conversation_${message.conversationId}`).emit('newMessage', message);
-    // Also send to receiver
+    const targetRoom = message.chatGroup 
+      ? `conversation_${message.chatGroup}` 
+      : `conversation_${[message.senderId, message.receiverId].sort().join('_')}`;
+    
+    io.to(targetRoom).emit('newMessage', message);
+    
+    // Also send to receiver if they are online
     const receiverSocketId = onlineUsers.get(message.receiverId);
     if (receiverSocketId) {
       io.to(receiverSocketId).emit('newMessage', message);

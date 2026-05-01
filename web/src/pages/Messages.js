@@ -118,10 +118,17 @@ const Messages = () => {
 
     socketRef.current.on('newMessage', (message) => {
       console.log('--- NEW_MESSAGE_RECEIVED_VIA_SOCKET ---', message);
+      
       if (selectedConversation) {
-        const isGroupMatch = message.chatGroup && message.chatGroup === selectedConversation._id;
-        const isP2PMatch = message.sender._id === selectedConversation._id || message.receiver === selectedConversation._id;
+        const messageSenderId = typeof message.sender === 'object' ? message.sender._id : message.sender;
+        const messageReceiverId = typeof message.receiver === 'object' ? message.receiver._id : message.receiver;
+        const selectedId = selectedConversation._id;
+
+        const isGroupMatch = message.chatGroup && message.chatGroup === selectedId;
+        const isP2PMatch = messageSenderId === selectedId || messageReceiverId === selectedId;
         
+        console.log('--- SOCKET_MATCH_CHECK ---', { isGroupMatch, isP2PMatch, messageSenderId, messageReceiverId, selectedId });
+
         if (isGroupMatch || isP2PMatch) {
           setMessages((prev) => {
             const exists = prev.find(m => m._id === message._id);
