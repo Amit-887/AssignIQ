@@ -237,6 +237,7 @@ const Messages = () => {
     formData.append('file', file);
 
     setUploading(true);
+    try {
       console.log('--- UPLOADING_FILE ---', file.name);
       const response = await api.post('/messages/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
