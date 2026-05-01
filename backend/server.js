@@ -115,6 +115,7 @@ io.on('connection', (socket) => {
   socket.on('userOnline', (userId) => {
     onlineUsers.set(userId, socket.id);
     socket.userId = userId;
+    socket.join(userId); // Join room named after userId for private messages
     // Send current online users list only to the joining user
     socket.emit('onlineUsersList', Array.from(onlineUsers.keys()));
     // Broadcast status change to others

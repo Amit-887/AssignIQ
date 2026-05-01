@@ -21,8 +21,8 @@ exports.sendMessage = async (req, res) => {
     });
 
     const populatedMessage = await Message.findById(message._id)
-      .populate('sender', 'name email profilePicture')
-      .populate('receiver', 'name email profilePicture');
+      .populate('sender', 'name email profilePicture role')
+      .populate('receiver', 'name email profilePicture role');
 
     // Emit socket event for real-time delivery
     if (req.io) {

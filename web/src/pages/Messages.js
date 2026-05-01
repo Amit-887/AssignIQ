@@ -60,19 +60,26 @@ const Messages = () => {
 
   useEffect(() => {
     fetchConversations();
-    initializeSocket();
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-      }
-    };
   }, []);
 
   useEffect(() => {
     if (user?._id) {
-        socketRef.current?.emit('userOnline', user._id);
+      console.log('--- INITIALIZING_SOCKET_FOR_USER ---', user._id);
+      initializeSocket();
     }
-  }, [user]);
+    return () => {
+      if (socketRef.current) {
+        console.log('--- DISCONNECTING_SOCKET ---');
+        socketRef.current.disconnect();
+      }
+    };
+  }, [user?._id]);
+
+  useEffect(() => {
+    if (messagesEndRef.current && messages.length > 0) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
 
   useEffect(() => {
     // Don't auto-scroll - let user control message position
@@ -83,13 +90,25 @@ const Messages = () => {
 
   const initializeSocket = () => {
     const socketUrl = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5002';
-    socketRef.current = io(socketUrl);
+    console.log('--- CONNECTING_TO_SOCKET_URL ---', socketUrl);
+    socketRef.current = io(socketUrl, {
+      transports: ['websocket', 'polling'],
+      withCredentials: true
+    });
     
-    if (user?._id) {
+    socketRef.current.on('connect', () => {
+      console.log('--- SOCKET_CONNECTED ---', socketRef.current.id);
+      if (user?._id) {
         socketRef.current.emit('userOnline', user._id);
-    }
+      }
+    });
+
+    socketRef.current.on('connect_error', (error) => {
+      console.error('--- SOCKET_CONNECTION_ERROR ---', error);
+    });
 
     socketRef.current.on('userStatusChange', ({ userId, status }) => {
+        console.log('--- USER_STATUS_CHANGE ---', userId, status);
         if (status === 'online') {
             setOnlineUsers(prev => [...new Set([...prev, userId])]);
         } else {
@@ -98,18 +117,24 @@ const Messages = () => {
     });
 
     socketRef.current.on('newMessage', (message) => {
+      console.log('--- NEW_MESSAGE_RECEIVED_VIA_SOCKET ---', message);
       if (selectedConversation) {
         const isGroupMatch = message.chatGroup && message.chatGroup === selectedConversation._id;
         const isP2PMatch = message.sender._id === selectedConversation._id || message.receiver === selectedConversation._id;
         
         if (isGroupMatch || isP2PMatch) {
-          setMessages((prev) => [...prev, message]);
+          setMessages((prev) => {
+            const exists = prev.find(m => m._id === message._id);
+            if (exists) return prev;
+            return [...prev, message];
+          });
         }
       }
       fetchConversations();
     });
 
     socketRef.current.on('onlineUsersList', (userIds) => {
+        console.log('--- ONLINE_USERS_LIST_RECEIVED ---', userIds);
         setOnlineUsers(userIds);
     });
   };
