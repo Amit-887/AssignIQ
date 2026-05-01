@@ -186,6 +186,17 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 5002;
 
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error('--- GLOBAL_ERROR_CAUGHT ---');
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    message: err.message || 'Internal Server Error',
+    error: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
+});
+
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
