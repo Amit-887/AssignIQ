@@ -86,7 +86,10 @@ app.use('/api/sections', sectionRoutes);
 app.use('/api/assignments', assignmentRoutes);
 
 // Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+const uploadsPath = process.env.NODE_ENV === 'production' 
+  ? '/tmp/uploads' 
+  : path.join(__dirname, 'uploads');
+app.use('/uploads', express.static(uploadsPath));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

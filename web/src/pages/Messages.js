@@ -479,7 +479,7 @@ const Messages = () => {
                       </Box>
                     </Box>
 
-                    <Box sx={{ flex: 1, overflow: 'auto', p: 3, bgcolor: '#efeae2', backgroundImage: 'url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png")', backgroundRepeat: 'repeat' }}>
+                    <Box sx={{ flex: 1, overflow: 'auto', p: 3, bgcolor: '#ffffff' }}>
                       {messages.map((msg, index) => {
                         const isMe = msg.sender._id === user?._id || msg.sender === user?._id;
                         return (
@@ -488,61 +488,62 @@ const Messages = () => {
                             sx={{
                               display: 'flex',
                               justifyContent: isMe ? 'flex-end' : 'flex-start',
-                              mb: 1.5,
+                              mb: 2,
                               position: 'relative',
                               '&:hover .msg-menu': { opacity: 1 }
                             }}
                           >
                             <Box
                               sx={{
-                                maxWidth: '75%',
-                                p: 1.5,
-                                borderRadius: 2.5,
-                                bgcolor: isMe ? '#dcf8c6' : 'white',
-                                color: '#1e293b',
-                                boxShadow: '0 1px 0.5px rgba(0,0,0,0.13)',
+                                maxWidth: '70%',
+                                p: 1.8,
+                                borderRadius: '20px',
+                                bgcolor: isMe ? '#4f46e5' : '#f1f5f9',
+                                color: isMe ? 'white' : '#1e293b',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
                                 position: 'relative',
-                                borderTopRightRadius: isMe ? 0 : 2.5,
-                                borderTopLeftRadius: isMe ? 2.5 : 0,
+                                borderBottomRightRadius: isMe ? '4px' : '20px',
+                                borderBottomLeftRadius: isMe ? '20px' : '4px',
+                                transition: 'all 0.2s ease'
                               }}
                             >
-                              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
+                              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                 <Box sx={{ flex: 1 }}>
                                   {msg.attachments?.map((att, i) => (
-                                    <Box key={i} sx={{ mb: 1, borderRadius: 1, overflow: 'hidden', bgcolor: 'rgba(0,0,0,0.05)', p: 0.5 }}>
+                                    <Box key={i} sx={{ mb: 1, borderRadius: 2, overflow: 'hidden', bgcolor: isMe ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', p: 0.5 }}>
                                       {att.type?.startsWith('image/') ? (
-                                        <img src={att.url} alt="attachment" style={{ maxWidth: '100%', maxHeight: 200, display: 'block', borderRadius: 4 }} />
+                                        <img src={att.url} alt="attachment" style={{ maxWidth: '100%', maxHeight: 250, display: 'block', borderRadius: 8, cursor: 'pointer' }} onClick={() => window.open(att.url, '_blank')} />
                                       ) : (
                                         <Button
                                           startIcon={<InsertDriveFileIcon />}
                                           href={att.url}
                                           target="_blank"
-                                          sx={{ color: 'text.primary', textTransform: 'none' }}
+                                          sx={{ color: isMe ? 'white' : 'text.primary', textTransform: 'none', fontWeight: 600 }}
                                         >
                                           {att.name}
                                         </Button>
                                       )}
                                     </Box>
                                   ))}
-                                  <Typography variant="body2" sx={{ wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>
+                                  <Typography variant="body1" sx={{ wordBreak: 'break-word', whiteSpace: 'pre-wrap', fontWeight: 500, lineHeight: 1.5 }}>
                                     {msg.content}
                                   </Typography>
                                 </Box>
-                                {isMe && (
-                                  <IconButton 
-                                    className="msg-menu"
-                                    size="small" 
-                                    sx={{ opacity: 0, transition: '0.2s', p: 0, mt: -0.5 }} 
-                                    onClick={(e) => handleMsgMenuClick(e, msg)}
-                                  >
-                                    <MoreVertIcon sx={{ fontSize: 16 }} />
-                                  </IconButton>
-                                )}
-                              </Box>
-                              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
-                                <Typography variant="caption" sx={{ fontSize: 10, opacity: 0.6 }}>
-                                  {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </Typography>
+                                <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 1 }}>
+                                  <Typography variant="caption" sx={{ fontSize: 10, opacity: 0.7, fontWeight: 600 }}>
+                                    {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  </Typography>
+                                  {isMe && (
+                                    <IconButton 
+                                      className="msg-menu"
+                                      size="small" 
+                                      sx={{ opacity: 0, transition: '0.2s', p: 0, color: isMe ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.4)' }} 
+                                      onClick={(e) => handleMsgMenuClick(e, msg)}
+                                    >
+                                      <MoreVertIcon sx={{ fontSize: 14 }} />
+                                    </IconButton>
+                                  )}
+                                </Box>
                               </Box>
                             </Box>
                           </Box>
@@ -579,11 +580,15 @@ const Messages = () => {
                           onChange={(e) => setNewMessage(e.target.value)}
                           onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                           variant="outlined"
-                          size="small"
+                          size="medium"
                           sx={{ 
                             bgcolor: 'white', 
-                            '& fieldset': { border: 'none' },
-                            borderRadius: 2
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 4,
+                              bgcolor: '#f8fafc',
+                              '& fieldset': { border: '1px solid #e2e8f0' },
+                              '&:hover fieldset': { borderColor: '#cbd5e1' }
+                            }
                           }}
                         />
                         <IconButton 
