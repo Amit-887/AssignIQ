@@ -38,7 +38,9 @@ exports.sendMessage = async (req, res) => {
           });
         }
       } else if (receiverId) {
-        req.io.to(receiverId).emit('newMessage', populatedMessage);
+        console.log('--- EMITTING_TO_RECEIVER ---', receiverId);
+        const result = req.io.to(receiverId.toString()).emit('newMessage', populatedMessage);
+        console.log('--- EMIT_RESULT ---', result ? 'SENT' : 'FAILED');
       }
     }
 

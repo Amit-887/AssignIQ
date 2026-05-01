@@ -35,6 +35,7 @@ const Messages = () => {
   const [newMessage, setNewMessage] = useState('');
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const [socketConnected, setSocketConnected] = useState(false);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [selectedReportUser, setSelectedReportUser] = useState(null);
@@ -98,9 +99,15 @@ const Messages = () => {
     
     socketRef.current.on('connect', () => {
       console.log('--- SOCKET_CONNECTED ---', socketRef.current.id);
+      setSocketConnected(true);
       if (user?._id) {
         socketRef.current.emit('userOnline', user._id);
       }
+    });
+
+    socketRef.current.on('disconnect', () => {
+      console.log('--- SOCKET_DISCONNECTED ---');
+      setSocketConnected(false);
     });
 
     socketRef.current.on('connect_error', (error) => {
@@ -396,6 +403,12 @@ const Messages = () => {
                       <Typography variant="h6" sx={{ fontWeight: 700, color: '#1e293b' }}>
                         Chats
                       </Typography>
+                      <Chip 
+                        label={socketConnected ? 'Live' : 'Connecting...'} 
+                        size="small" 
+                        color={socketConnected ? 'success' : 'warning'} 
+                        sx={{ height: 18, fontSize: 9, ml: 1 }} 
+                      />
                     </Box>
                     <Box sx={{ display: 'flex' }}>
                       <Tooltip title="Create Group">
