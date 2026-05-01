@@ -36,12 +36,7 @@ function App() {
   }, [dispatch, token, isAuthenticated]);
 
   if (token && !user) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column', gap: 2 }}>
-        <CircularProgress />
-        <p style={{ color: '#666' }}>Resuming session...</p>
-      </Box>
-    );
+    return null; // Don't show anything until user is loaded
   }
 
   return (

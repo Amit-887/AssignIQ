@@ -131,7 +131,6 @@ const StudentDashboard = () => {
                 border: '1px solid rgba(255, 255, 255, 0.6)',
                 background: 'rgba(255, 255, 255, 0.8)',
                 backdropFilter: 'blur(10px)',
-                transition: 'transform 0.3s ease',
                 '&:hover': { transform: 'translateY(-5px)', boxShadow: '0 10px 30px 0 rgba(0,0,0,0.05)' },
               }}>
                 <CardContent sx={{ p: 3 }}>
@@ -161,7 +160,7 @@ const StudentDashboard = () => {
         <Grid container spacing={3} sx={{ mb: 4 }}>
            <Grid item xs={12} md={3}>
              <Card sx={{ 
-               borderRadius: 4, cursor: 'pointer', transition: 'all 0.3s ease',
+               borderRadius: 4, cursor: 'pointer',
                '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 10px 25px -5px rgba(37, 99, 235, 0.15)', borderColor: '#2563eb' },
                border: '1px solid #e2e8f0', bgcolor: '#ffffff'
              }} onClick={() => setJoinDialogOpen(true)}>
