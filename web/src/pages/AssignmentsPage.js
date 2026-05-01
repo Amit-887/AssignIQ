@@ -399,16 +399,6 @@ const AssignmentsPage = () => {
     </div>
   );
 
-  if (loading && assignments.length === 0) {
-    return (
-      <Container maxWidth="lg">
-        <Box sx={{ mt: 4 }}>
-          <LinearProgress />
-        </Box>
-      </Container>
-    );
-  }
-
   return (
     <Layout>
       <Container maxWidth="lg">

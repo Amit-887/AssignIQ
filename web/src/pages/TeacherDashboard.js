@@ -87,10 +87,6 @@ const TeacherDashboard = () => {
     { title: 'Pending Reviews', value: dashboardData?.pendingSubmissions || 0, icon: <RateReviewIcon />, color: '#ea580c' }
   ];
 
-  if (loading) {
-    return <Box sx={{ p: 4 }}><LinearProgress /></Box>;
-  }
-
   return (
     <Layout>
       <Box sx={{ minHeight: '100vh', bgcolor: '#f8fafc', py: 4 }}>
