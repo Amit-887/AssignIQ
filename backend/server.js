@@ -207,6 +207,19 @@ server.listen(PORT, '0.0.0.0', () => {
     console.error('--- WARNING: EMAIL_USER or EMAIL_PASS is MISSING in environment variables! ---');
   } else {
     console.log('--- Email credentials detected successfully ---');
+    
+    // STARTUP TEST EMAIL
+    const { sendOTPEmail } = require('./utils/email');
+    console.log('--- SENDING STARTUP TEST EMAIL... ---');
+    sendOTPEmail(process.env.EMAIL_USER, 'Admin Test', '123456')
+      .then(sent => {
+        if (sent) console.log('--- STARTUP TEST EMAIL SENT SUCCESSFULLY! ---');
+        else console.error('--- STARTUP TEST EMAIL FAILED! ---');
+      })
+      .catch(err => {
+        console.error('--- STARTUP TEST EMAIL CRASHED! ---');
+        console.error(err);
+      });
   }
 });
 
