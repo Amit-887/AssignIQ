@@ -23,6 +23,13 @@ import Layout from '../components/Layout';
 const Messages = () => {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  
+  const resolveFileUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    const baseUrl = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5002';
+    return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
   const [conversations, setConversations] = useState([]);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -165,13 +172,16 @@ const Messages = () => {
         payload.receiverId = selectedConversation._id;
       }
 
+      console.log('--- SENDING_MESSAGE ---', payload);
       const response = await api.post('/messages', payload);
+      console.log('--- MESSAGE_SENT_SUCCESS ---', response.data);
       setMessages((prev) => [...prev, response.data.data]);
       setNewMessage('');
       setAttachments([]);
       fetchConversations();
     } catch (error) {
-      console.error('Failed to send message:', error);
+      console.error('--- MESSAGE_SEND_FAILED ---', error);
+      alert('Failed to send message: ' + (error.response?.data?.message || error.message));
     }
   };
 
@@ -188,14 +198,15 @@ const Messages = () => {
     formData.append('file', file);
 
     setUploading(true);
-    try {
+      console.log('--- UPLOADING_FILE ---', file.name);
       const response = await api.post('/messages/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
+      console.log('--- UPLOAD_SUCCESS ---', response.data);
       setAttachments([response.data.data]);
     } catch (error) {
-      console.error('Upload failed:', error);
-      alert('Upload failed. Please try again.');
+      console.error('--- UPLOAD_FAILED ---', error);
+      alert('Upload failed: ' + (error.response?.data?.message || error.message));
     } finally {
       setUploading(false);
     }
@@ -428,7 +439,7 @@ const Messages = () => {
                             />
                             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5 }}>
                               <Typography variant="caption" color="text.secondary">
-                                {new Date(conv.lastMessage?.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {new Date(conv.lastMessage?.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                               </Typography>
                               {conv.unreadCount > 0 && (
                                 <Badge badgeContent={conv.unreadCount} color="primary" />
@@ -479,7 +490,7 @@ const Messages = () => {
                       </Box>
                     </Box>
 
-                    <Box sx={{ flex: 1, overflow: 'auto', p: 3, bgcolor: '#ffffff' }}>
+                    <Box sx={{ flex: 1, overflow: 'auto', p: 3, bgcolor: '#f0f4f8' }}>
                       {messages.map((msg, index) => {
                         const isMe = msg.sender._id === user?._id || msg.sender === user?._id;
                         return (
@@ -512,11 +523,16 @@ const Messages = () => {
                                   {msg.attachments?.map((att, i) => (
                                     <Box key={i} sx={{ mb: 1, borderRadius: 2, overflow: 'hidden', bgcolor: isMe ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', p: 0.5 }}>
                                       {att.type?.startsWith('image/') ? (
-                                        <img src={att.url} alt="attachment" style={{ maxWidth: '100%', maxHeight: 250, display: 'block', borderRadius: 8, cursor: 'pointer' }} onClick={() => window.open(att.url, '_blank')} />
+                                        <img 
+                                          src={resolveFileUrl(att.url)} 
+                                          alt="attachment" 
+                                          style={{ maxWidth: '100%', maxHeight: 250, display: 'block', borderRadius: 8, cursor: 'pointer' }} 
+                                          onClick={() => window.open(resolveFileUrl(att.url), '_blank')} 
+                                        />
                                       ) : (
                                         <Button
                                           startIcon={<InsertDriveFileIcon />}
-                                          href={att.url}
+                                          href={resolveFileUrl(att.url)}
                                           target="_blank"
                                           sx={{ color: isMe ? 'white' : 'text.primary', textTransform: 'none', fontWeight: 600 }}
                                         >
@@ -531,7 +547,7 @@ const Messages = () => {
                                 </Box>
                                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 1 }}>
                                   <Typography variant="caption" sx={{ fontSize: 10, opacity: 0.7, fontWeight: 600 }}>
-                                    {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                                   </Typography>
                                   {isMe && (
                                     <IconButton 
